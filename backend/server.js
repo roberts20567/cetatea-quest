@@ -26,24 +26,20 @@ app.use('/api/submissions', require('./routes/submissions'));
 
 // --- Make Uploads Folder Static ---
 // This makes the 'uploads' folder publicly accessible
-app.use('/uploads', express.static(path.join(__dirname, '/uploads')));
-
-// A simple test route
-app.get('/', (req, res) => {
-  res.send('API is running...');
-});
+app.use('/uploads', express.static(path.join(dirname, '/uploads')));
 
 if (process.env.NODE_ENV === 'production') {
-const __dirname = path.resolve();
-app.use(express.static(path.join(__dirname, '/frontend/dist')));
+  const dirname = path.resolve();
+  app.use(express.static(path.join(dirname, '/frontend/dist')));
 
-app.get('*', (req, res) =>
-  res.sendFile(path.resolve(__dirname, 'frontend', 'dist', 'index.html'))
-);
+  app.get('*', (req, res) =>
+    res.sendFile(path.resolve(dirname, 'frontend', 'dist', 'index.html'))
+  );
 } else {
-app.get('/', (req, res) => {
-  res.send('API is running...');
-});
+  // A simple test route for development
+  app.get('/', (req, res) => {
+    res.send('API is running...');
+  });
 }
 
 const PORT = process.env.PORT || 5001;
