@@ -3,9 +3,13 @@
   "version": "1.0.0",
   "description": "Root for Heroku deployment",
   "scripts": {
+    "start": "npm start --prefix backend",
     "heroku-postbuild": "npm install --prefix backend && npm run heroku-postbuild --prefix backend"
   },
-  "cacheDirectories": ["backend/node_modules", "frontend/node_modules"],
+  "cacheDirectories": [
+    "backend/node_modules",
+    "frontend/node_modules"
+  ],
   "engines": {
     "node": "18.x"
   }
