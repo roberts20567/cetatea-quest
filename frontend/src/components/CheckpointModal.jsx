@@ -6,28 +6,36 @@ const CheckpointModal = ({ isOpen, onClose, onSave, checkpoint }) => {
     title: '',
     description: '',
     hint: '',
-    imageUrl: '',
     order: 0,
   });
+  const [imageFile, setImageFile] = useState(null);
+  const [imagePreview, setImagePreview] = useState('');
 
   useEffect(() => {
-    if (checkpoint) {
-      setFormData({
-        title: checkpoint.title || '',
-        description: checkpoint.description || '',
-        hint: checkpoint.hint || '',
-        imageUrl: checkpoint.imageUrl || '',
-        order: checkpoint.order !== undefined ? checkpoint.order : 0,
-      });
-    } else {
-      // Reset form for creating a new one
-      setFormData({
-        title: '',
-        description: '',
-        hint: '',
-        imageUrl: '',
-        order: 0,
-      });
+    if (isOpen) {
+      if (checkpoint) {
+        setFormData({
+          title: checkpoint.title || '',
+          description: checkpoint.description || '',
+          hint: checkpoint.hint || '',
+          order: checkpoint.order !== undefined ? checkpoint.order : 0,
+        });
+        if (checkpoint.image) {
+          setImagePreview(`/${checkpoint.image}`);
+        } else {
+          setImagePreview('');
+        }
+      } else {
+        // Reset form for creating a new one
+        setFormData({
+          title: '',
+          description: '',
+          hint: '',
+          order: 0,
+        });
+        setImageFile(null);
+        setImagePreview('');
+      }
     }
   }, [checkpoint, isOpen]); // Rerun when checkpoint or isOpen changes
 
@@ -40,9 +48,30 @@ const CheckpointModal = ({ isOpen, onClose, onSave, checkpoint }) => {
     setFormData((prev) => ({ ...prev, [name]: value }));
   };
 
+  const handleFileChange = (e) => {
+    const file = e.target.files[0];
+    if (file) {
+      setImageFile(file);
+      // Create a preview URL
+      const reader = new FileReader();
+      reader.onloadend = () => {
+        setImagePreview(reader.result);
+      };
+      reader.readAsDataURL(file);
+    }
+  };
+
   const handleSubmit = (e) => {
     e.preventDefault();
-    onSave(formData);
+    const data = new FormData();
+    data.append('title', formData.title);
+    data.append('description', formData.description);
+    data.append('hint', formData.hint);
+    data.append('order', formData.order);
+    if (imageFile) {
+      data.append('image', imageFile);
+    }
+    onSave(data);
   };
 
   return (
@@ -67,8 +96,11 @@ const CheckpointModal = ({ isOpen, onClose, onSave, checkpoint }) => {
               <input type="text" name="hint" value={formData.hint} onChange={handleChange} />
             </div>
             <div className="form-group">
-              <label>Image URL (Optional)</label>
-              <input type="text" name="imageUrl" value={formData.imageUrl} onChange={handleChange} />
+              <label>Image (Optional)</label>
+              <input type="file" name="image" onChange={handleFileChange} accept="image/*" />
+              {imagePreview && (
+                <img src={imagePreview} alt="Preview" style={{ marginTop: '1rem', maxWidth: '100%', height: 'auto' }} />
+              )}
             </div>
             <div className="form-group">
               <label>Order</label>

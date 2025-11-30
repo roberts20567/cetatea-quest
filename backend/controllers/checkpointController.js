@@ -6,14 +6,19 @@ const Submission = require('../models/Submission');
 // @route   POST /api/checkpoints
 // @access  Private (Admin)
 const createCheckpoint = async (req, res) => {
-  const { title, description, hint, imageUrl, order } = req.body;
+  const { title, description, hint, order } = req.body;
+  
+  let image;
+  if (req.file) {
+    image = req.file.path.replace(/\\/g, '/');
+  }
 
   try {
     const checkpoint = new Checkpoint({
       title,
       description,
       hint,
-      imageUrl,
+      image,
       order,
     });
 
@@ -40,7 +45,7 @@ const getCheckpoints = async (req, res) => {
 // @route   PUT /api/checkpoints/:id
 // @access  Private (Admin)
 const updateCheckpoint = async (req, res) => {
-  const { title, description, hint, imageUrl, order } = req.body;
+  const { title, description, hint, order } = req.body;
 
   try {
     const checkpoint = await Checkpoint.findById(req.params.id);
@@ -49,8 +54,11 @@ const updateCheckpoint = async (req, res) => {
       checkpoint.title = title || checkpoint.title;
       checkpoint.description = description || checkpoint.description;
       checkpoint.hint = hint || checkpoint.hint;
-      checkpoint.imageUrl = imageUrl || checkpoint.imageUrl;
       checkpoint.order = order !== undefined ? order : checkpoint.order;
+
+      if (req.file) {
+        checkpoint.image = req.file.path.replace(/\\/g, '/');
+      }
 
       const updatedCheckpoint = await checkpoint.save();
       res.json(updatedCheckpoint);

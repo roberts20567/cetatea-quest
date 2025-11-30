@@ -49,7 +49,7 @@ const CheckpointDetail = ({ checkpoint, submission, onUploadSuccess }) => {
   return (
     <div className="checkpoint-detail">
       <h2>{checkpoint.order + 1}. {checkpoint.title}</h2>      
-      {checkpoint.imageUrl && <MediaDisplay src={checkpoint.imageUrl} alt={checkpoint.title} className="checkpoint-detail-image" />}
+      {checkpoint.image && <MediaDisplay src={checkpoint.image} alt={checkpoint.title} className="checkpoint-detail-image" />}
       <p>{checkpoint.description}</p>
 
       {checkpoint.hint && (

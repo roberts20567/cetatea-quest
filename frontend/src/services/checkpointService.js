@@ -10,13 +10,23 @@ const getCheckpoints = async () => {
 
 // Create a new checkpoint
 const createCheckpoint = async (checkpointData) => {
-  const response = await axios.post(API_URL, checkpointData);
+  // The checkpointData can be a FormData object if an image is uploaded
+  const response = await axios.post(API_URL, checkpointData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 };
 
 // Update a checkpoint
 const updateCheckpoint = async (id, checkpointData) => {
-  const response = await axios.put(API_URL + id, checkpointData);
+  // The checkpointData can be a FormData object if an image is uploaded
+  const response = await axios.put(API_URL + id, checkpointData, {
+    headers: {
+      'Content-Type': 'multipart/form-data',
+    },
+  });
   return response.data;
 };
 

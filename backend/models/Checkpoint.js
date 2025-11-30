@@ -14,8 +14,8 @@ const checkpointSchema = new mongoose.Schema({
   hint: {
     type: String
   },
-  // URL to an image associated with the checkpoint itself (e.g., a picture of the location)
-  imageUrl: {
+  // Path to an image associated with the checkpoint itself (e.g., a picture of the location)
+  image: {
     type: String
   },
   order: { // To control the display order for teams
