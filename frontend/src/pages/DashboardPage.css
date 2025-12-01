@@ -3,9 +3,10 @@
   display: grid;
   grid-template-columns: 1fr;
   gap: 2rem;
+  padding: 1rem;
 }
 
-@media (min-width: 768px) {
+@media (min-width: 992px) {
   .dashboard-container {
     grid-template-columns: 1fr 2fr;
   }
@@ -21,10 +22,21 @@
 .error-message-dashboard {
   text-align: center;
   font-size: 1.2rem;
-  color: #ccc;
+  color: var(--text-gray);
   margin-top: 3rem;
 }
 
 .error-message-dashboard {
-  color: #ff6b6b;
+  color: #c0392b;
+}
+
+@media (max-width: 768px) {
+  .dashboard-container {
+    padding: 0.5rem;
+    gap: 1rem;
+  }
+
+  .checkpoints-list {
+    gap: 1rem;
+  }
 }

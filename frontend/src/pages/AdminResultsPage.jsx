@@ -12,6 +12,7 @@ const AdminResultsPage = () => {
   const [selectedId, setSelectedId] = useState('');
   const [submissions, setSubmissions] = useState([]);
   const [loading, setLoading] = useState(false);
+  const [teamMeta, setTeamMeta] = useState(null);
 
   // Fetch initial data for dropdowns
   useEffect(() => {
@@ -44,7 +45,15 @@ const AdminResultsPage = () => {
         } else {
           data = await submissionService.getSubmissionsForTeam(selectedId);
         }
-        setSubmissions(data);
+
+        if (viewMode === 'team') {
+          // backend returns { submissions, team }
+          setSubmissions(data.submissions || []);
+          setTeamMeta(data.team || null);
+        } else {
+          setSubmissions(data || []);
+          setTeamMeta(null);
+        }
       } catch (error) {
         console.error('Failed to fetch submissions', error);
       } finally {
@@ -114,6 +123,14 @@ const AdminResultsPage = () => {
           </div>
         ))}
       </div>
+      {viewMode === 'team' && teamMeta && (
+        <div style={{ marginTop: '1rem' }}>
+          <h3>Team Info</h3>
+          <p><strong>Team:</strong> {teamMeta.username}</p>
+          <p><strong>Start Time:</strong> {teamMeta.questStart ? new Date(teamMeta.questStart).toLocaleString() : 'Not started'}</p>
+          <p><strong>End Time:</strong> {teamMeta.questEnd ? new Date(teamMeta.questEnd).toLocaleString() : 'Not finished'}</p>
+        </div>
+      )}
     </div>
   );
 };

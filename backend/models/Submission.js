@@ -4,20 +4,20 @@ const mongoose = require('mongoose');
 const submissionSchema = new mongoose.Schema({
   teamId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Team', // This creates a direct link to the Team model
+    ref: 'Team',
     required: true
   },
   checkpointId: {
     type: mongoose.Schema.Types.ObjectId,
-    ref: 'Checkpoint', // This creates a direct link to the Checkpoint model
+    ref: 'Checkpoint',
     required: true
   },
-  // The URL of the image uploaded by the team
   imageUrl: {
     type: String,
-    required: true
   },
-  // An optional caption the team can add to their submission
+  textSubmission: {
+    type: String
+  },
   caption: {
     type: String
   }

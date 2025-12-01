@@ -7,6 +7,8 @@ const CheckpointModal = ({ isOpen, onClose, onSave, checkpoint }) => {
     description: '',
     hint: '',
     order: 0,
+    type: 'media',
+    solution: '',
   });
   const [imageFile, setImageFile] = useState(null);
   const [imagePreview, setImagePreview] = useState('');
@@ -19,6 +21,8 @@ const CheckpointModal = ({ isOpen, onClose, onSave, checkpoint }) => {
           description: checkpoint.description || '',
           hint: checkpoint.hint || '',
           order: checkpoint.order !== undefined ? checkpoint.order : 0,
+          type: checkpoint.type || 'media',
+          solution: checkpoint.solution || '',
         });
         if (checkpoint.image) {
           setImagePreview(`/${checkpoint.image}`);
@@ -32,6 +36,8 @@ const CheckpointModal = ({ isOpen, onClose, onSave, checkpoint }) => {
           description: '',
           hint: '',
           order: 0,
+          type: 'media',
+          solution: '',
         });
         setImageFile(null);
         setImagePreview('');
@@ -68,6 +74,8 @@ const CheckpointModal = ({ isOpen, onClose, onSave, checkpoint }) => {
     data.append('description', formData.description);
     data.append('hint', formData.hint);
     data.append('order', formData.order);
+    data.append('type', formData.type || 'media');
+    if (formData.type === 'text') data.append('solution', formData.solution || '');
     if (imageFile) {
       data.append('image', imageFile);
     }
@@ -102,6 +110,20 @@ const CheckpointModal = ({ isOpen, onClose, onSave, checkpoint }) => {
                 <img src={imagePreview} alt="Preview" style={{ marginTop: '1rem', maxWidth: '100%', height: 'auto' }} />
               )}
             </div>
+            <div className="form-group">
+              <label>Checkpoint Type</label>
+              <select name="type" value={formData.type} onChange={handleChange}>
+                <option value="media">Media (image/video upload)</option>
+                <option value="text">Text answer</option>
+              </select>
+            </div>
+
+            {formData.type === 'text' && (
+              <div className="form-group">
+                <label>Correct Answer (text)</label>
+                <input type="text" name="solution" value={formData.solution} onChange={handleChange} required />
+              </div>
+            )}
             <div className="form-group">
               <label>Order</label>
               <input type="number" name="order" value={formData.order} onChange={handleChange} required />

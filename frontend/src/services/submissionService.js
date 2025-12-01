@@ -5,14 +5,22 @@ const API_URL = '/api/submissions/';
 // Create or update a submission
 // formData will be a FormData object because it contains a file
 const createOrUpdateSubmission = async (formData) => {
-  const config = {
-    headers: {
-      'Content-Type': 'multipart/form-data',
-    },
-  };
-  const response = await axios.post(API_URL, formData, config);
+  // If formData is FormData (file upload), send as multipart/form-data
+  if (typeof FormData !== 'undefined' && formData instanceof FormData) {
+    const config = {
+      headers: {
+        'Content-Type': 'multipart/form-data',
+      },
+    };
+    const response = await axios.post(API_URL, formData, config);
+    return response.data;
+  }
+
+  // Otherwise send JSON (for text submissions)
+  const response = await axios.post(API_URL, formData);
   return response.data;
 };
+
 
 // Get all submissions for the current team
 const getMySubmissions = async () => {

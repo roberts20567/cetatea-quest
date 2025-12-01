@@ -84,8 +84,40 @@ const getAllTeams = async (req, res) => {
     }
 };
 
+// @desc    Set quest start for the logged-in team
+// @route   POST /api/teams/start
+// @access  Private (Team)
+const startQuest = async (req, res) => {
+  try {
+    const team = await Team.findById(req.team._id);
+    if (!team) return res.status(404).json({ message: 'Team not found' });
+    if (!team.questStart) {
+      team.questStart = new Date();
+      await team.save();
+    }
+    res.json({ questStart: team.questStart });
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
+// @desc    Get current team info (including quest times)
+// @route   GET /api/teams/me
+// @access  Private (Team)
+const getMyTeam = async (req, res) => {
+  try {
+    const team = await Team.findById(req.team._id).select('_id username questStart questEnd');
+    if (!team) return res.status(404).json({ message: 'Team not found' });
+    res.json(team);
+  } catch (error) {
+    res.status(500).json({ message: 'Server Error' });
+  }
+};
+
 module.exports = {
   registerTeam,
   loginTeam,
-  getAllTeams
+  getAllTeams,
+  startQuest,
+  getMyTeam
 };

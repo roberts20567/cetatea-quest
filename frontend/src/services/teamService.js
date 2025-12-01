@@ -8,5 +8,15 @@ const getAllTeams = async () => {
   return response.data;
 };
 
-export default { getAllTeams };
+const startQuest = async () => {
+  const response = await axios.post(API_URL + 'start');
+  return response.data;
+};
+
+const getMyInfo = async () => {
+  const response = await axios.get(API_URL + 'me');
+  return response.data;
+};
+
+export default { getAllTeams, startQuest, getMyInfo };
 

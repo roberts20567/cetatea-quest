@@ -1,6 +1,7 @@
 // backend/controllers/submissionController.js
 const Submission = require('../models/Submission');
 const Checkpoint = require('../models/Checkpoint');
+const Team = require('../models/Team');
 const fs = require('fs');
 const path = require('path');
 
@@ -8,24 +9,69 @@ const path = require('path');
 // @route   POST /api/submissions
 // @access  Private (Team)
 const createOrUpdateSubmission = async (req, res) => {
-  const { checkpointId, caption } = req.body;
+  const { checkpointId, caption, textSubmission } = req.body;
   const teamId = req.team._id; // from protect middleware
 
-  if (!req.file) {
-    return res.status(400).json({ message: 'Please upload an image' });
-  }
-
   if (!checkpointId) {
-    // If no checkpointId, delete the uploaded file
-    fs.unlinkSync(req.file.path);
+    // If a file got uploaded accidentally, delete it
+    if (req.file && req.file.path && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
     return res.status(400).json({ message: 'Checkpoint ID is required' });
   }
 
   try {
     const checkpoint = await Checkpoint.findById(checkpointId);
     if (!checkpoint) {
-      fs.unlinkSync(req.file.path);
+      if (req.file && req.file.path && fs.existsSync(req.file.path)) {
+        fs.unlinkSync(req.file.path);
+      }
       return res.status(404).json({ message: 'Checkpoint not found' });
+    }
+
+    // If checkpoint expects a text answer, handle accordingly
+    if (checkpoint.type === 'text') {
+      if (!textSubmission) {
+        return res.status(400).json({ message: 'Please provide an answer' });
+      }
+
+      const normalizedGiven = String(textSubmission).trim().toLowerCase();
+      const normalizedSolution = String(checkpoint.solution || '').trim().toLowerCase();
+
+      if (normalizedGiven !== normalizedSolution) {
+        // incorrect answer — do not create/update submission
+        return res.status(200).json({ correct: false, message: 'Incorrect answer' });
+      }
+
+      // correct answer — create or update a text submission
+      const submission = await Submission.findOneAndUpdate(
+        { teamId, checkpointId },
+        { textSubmission: textSubmission },
+        { new: true, upsert: true, runValidators: true }
+      );
+
+      // After creating/updating a submission check if team completed all checkpoints
+      try {
+        const totalCheckpoints = await Checkpoint.countDocuments();
+        const teamSubmissionsCount = await Submission.countDocuments({ teamId });
+        if (teamSubmissionsCount >= totalCheckpoints) {
+          const team = await Team.findById(teamId);
+          if (team && !team.questEnd) {
+            team.questEnd = new Date();
+            await team.save();
+          }
+        }
+      } catch (e) {
+        // non-fatal: log and continue
+        console.error('Error checking completion status', e);
+      }
+
+      return res.status(201).json({ correct: true, submission });
+    }
+
+    // Otherwise treat as media submission
+    if (!req.file) {
+      return res.status(400).json({ message: 'Please upload an image' });
     }
 
     const imageUrl = `/uploads/${req.file.filename}`;
@@ -46,10 +92,27 @@ const createOrUpdateSubmission = async (req, res) => {
       { new: true, upsert: true, runValidators: true }
     );
 
-    res.status(201).json(submission);
+    // After creating/updating a submission check if team completed all checkpoints
+    try {
+      const totalCheckpoints = await Checkpoint.countDocuments();
+      const teamSubmissionsCount = await Submission.countDocuments({ teamId });
+      if (teamSubmissionsCount >= totalCheckpoints) {
+        const team = await Team.findById(teamId);
+        if (team && !team.questEnd) {
+          team.questEnd = new Date();
+          await team.save();
+        }
+      }
+    } catch (e) {
+      console.error('Error checking completion status', e);
+    }
+
+    return res.status(201).json({ correct: true, submission });
   } catch (error) {
     // If any error occurs, delete the uploaded file to prevent orphans
-    fs.unlinkSync(req.file.path);
+    if (req.file && req.file.path && fs.existsSync(req.file.path)) {
+      fs.unlinkSync(req.file.path);
+    }
     res.status(500).json({ message: 'Server Error', error: error.message });
   }
 };
@@ -102,8 +165,9 @@ const deleteSubmission = async (req, res) => {
 // @route GET /api/submissions/admin/by-team/:teamId
 // @access Private (Admin)
 const getSubmissionsForTeam = async (req, res) => {
-    const submissions = await Submission.find({ teamId: req.params.teamId }).populate('checkpointId', 'title order');
-    res.json(submissions);
+  const submissions = await Submission.find({ teamId: req.params.teamId }).populate('checkpointId', 'title order');
+  const team = await Team.findById(req.params.teamId).select('username questStart questEnd');
+  res.json({ submissions, team });
 };
 
 

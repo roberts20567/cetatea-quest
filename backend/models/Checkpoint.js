@@ -14,13 +14,21 @@ const checkpointSchema = new mongoose.Schema({
   hint: {
     type: String
   },
-  // Path to an image associated with the checkpoint itself (e.g., a picture of the location)
   image: {
     type: String
   },
-  order: { // To control the display order for teams
+  order: {
     type: Number,
     default: 0
+  },
+  type: {
+    type: String,
+    enum: ['media', 'text'],
+    default: 'media'
+  },
+  solution: {
+    type: String,
+    required: function() { return this.type === 'text'; }
   }
 }, {
   timestamps: true

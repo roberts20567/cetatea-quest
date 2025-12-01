@@ -1,11 +1,16 @@
+.admin-dashboard {
+  padding: 1rem;
+}
+
 .admin-checkpoint-item {
   display: flex;
   justify-content: space-between;
   align-items: center;
-  background-color: #2c2c2c;
+  background-color: #fff;
   padding: 1rem 1.5rem;
   border-radius: 8px;
   margin-bottom: 1rem;
+  border: 1px solid var(--text-gray);
 }
 
 .admin-checkpoint-info {
@@ -15,12 +20,13 @@
 .admin-checkpoint-info h4 {
   margin: 0;
   font-weight: 500;
+  color: var(--text-dark);
 }
 
 .admin-checkpoint-info p {
   margin: 0.25rem 0 0 0;
   font-size: 0.9rem;
-  color: #aaa;
+  color: var(--text-gray);
 }
 
 .admin-checkpoint-actions {
@@ -33,10 +39,30 @@
   border-radius: 4px;
   border: 1px solid;
   cursor: pointer;
+  font-weight: 500;
+}
+
+.edit-btn {
+  border-color: var(--primary-accent);
+  color: var(--text-dark);
+  background-color: var(--primary-accent);
 }
 
 .delete-btn {
-  border-color: #ff6b6b;
-  color: #ff6b6b;
+  border-color: #c0392b;
+  color: #c0392b;
   background-color: transparent;
+}
+
+.delete-btn:hover {
+  background-color: #c0392b;
+  color: white;
+}
+
+@media (max-width: 768px) {
+  .admin-checkpoint-item {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 1rem;
+  }
 }

@@ -21,6 +21,13 @@ const teamSchema = new mongoose.Schema({
     enum: ['team', 'admin'],
     default: 'team'
   }
+  ,
+  questStart: {
+    type: Date
+  },
+  questEnd: {
+    type: Date
+  }
 }, {
   timestamps: true // Adds createdAt and updatedAt fields
 });

@@ -14,7 +14,7 @@ const Navbar = () => {
   return (
     <nav className="navbar">
       <Link to="/" className="navbar-brand">
-        Treasure Hunt
+        Rating Quest
       </Link>
       <div className="navbar-links">
         {user ? (
